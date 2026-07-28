@@ -1,64 +1,61 @@
-// Build 10 video cells
-const chart2 = document.getElementById('chart2');
-for (let i = 1; i <= 10; i++) {
-  const cell = document.createElement('div');
-  cell.className = 'video-cell';
-  cell.innerHTML = `<span>${String(i).padStart(2, '0')}</span><span class="play"></span>`;
-  chart2.appendChild(cell);
-}
+// PARALLAX NAS ORBES
+document.addEventListener('mousemove', (e) => {
+    const orbs = document.querySelectorAll('.gradient-orb');
+    const mouseX = e.clientX / window.innerWidth;
+    const mouseY = e.clientY / window.innerHeight;
+    
+    orbs.forEach((orb, index) => {
+        const speed = (index + 1) * 15;
+        const x = (mouseX - 0.5) * speed;
+        const y = (mouseY - 0.5) * speed;
+        orb.style.transform = `translate(${x}px, ${y}px)`;
+    });
+});
 
-// Observer-driven animations
+// FALLBACK PARA IFRAMES QUE NAO CARREGAM
+document.querySelectorAll('iframe').forEach(iframe => {
+    iframe.addEventListener('error', function() {
+        const card = this.closest('.card-image');
+        if (card) {
+            const placeholder = document.createElement('div');
+            placeholder.style.width = '100%';
+            placeholder.style.height = '100%';
+            placeholder.style.background = '#0a0a0a';
+            placeholder.style.display = 'flex';
+            placeholder.style.alignItems = 'center';
+            placeholder.style.justifyContent = 'center';
+            placeholder.style.color = 'rgba(255,255,255,0.5)';
+            placeholder.style.fontSize = '14px';
+            placeholder.style.letterSpacing = '2px';
+            placeholder.style.textTransform = 'uppercase';
+            placeholder.textContent = this.title || 'Site Preview';
+            this.parentNode.replaceChild(placeholder, this);
+        }
+    });
+});
+
+// OBSERVER PARA REVELAR ELEMENTOS
 const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    const id = entry.target.id;
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, { threshold: 0.1, rootMargin: '50px' });
 
-    if (id === 'service-1') {
-      const bars = entry.target.querySelectorAll('.bar');
-      const labels = entry.target.querySelectorAll('.bar-label');
-      const siteLine = entry.target.querySelector('.site-line');
-      const siteTag  = entry.target.querySelector('.site-tag');
+document.querySelectorAll('.portfolio-card, .scope-item, .ads-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+});
 
-      bars.forEach((bar, i) => {
-        setTimeout(() => { bar.style.height = '100%'; }, 200 + i * 230);
-      });
-      labels.forEach((lbl, i) => {
-        setTimeout(() => lbl.classList.add('show'), 600 + i * 230);
-      });
-      setTimeout(() => {
-        siteLine.classList.add('show');
-        siteTag.classList.add('show');
-      }, 1200);
-    }
-
-    if (id === 'service-2') {
-      const cells = entry.target.querySelectorAll('.video-cell');
-      cells.forEach((cell, i) => {
-        setTimeout(() => {
-          cell.classList.add('show');
-          setTimeout(() => cell.classList.add('fill'), 220);
-        }, 100 + i * 90);
-      });
-    }
-
-    if (id === 'total-section') {
-      const totalEl = document.getElementById('total');
-      const target = 3000;
-      const duration = 1800;
-      const start = performance.now();
-      function tick(now) {
-        const t = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - t, 4);
-        const cur = Math.floor(eased * target);
-        totalEl.textContent = '$' + cur.toLocaleString('pt-BR').replace(/,/g, '.');
-        if (t < 1) requestAnimationFrame(tick);
-        else totalEl.textContent = '$3.000';
-      }
-      requestAnimationFrame(tick);
-    }
-
-    observer.unobserve(entry.target);
-  });
-}, { threshold: 0.22 });
-
-document.querySelectorAll('#service-1, #service-2, #total-section').forEach(el => observer.observe(el));
+// ANIMAÇÃO SUAVE PARA O PREÇO MENSAL
+const monthlyPrice = document.querySelector('.price-number.monthly');
+if (monthlyPrice) {
+    setInterval(() => {
+        monthlyPrice.style.animation = 'none';
+        monthlyPrice.offsetHeight;
+        monthlyPrice.style.animation = 'pulse 3s ease-in-out infinite';
+    }, 6000);
